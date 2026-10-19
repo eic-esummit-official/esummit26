@@ -245,26 +245,48 @@ export default function StudentPassForm({
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'
 
-      // Submit to backend NestJS API with database persistence
+      // Submit to backend via internal proxy route to eliminate browser CORS
       let regId = `PEC-STU-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
 
-      const res = await fetch(`${apiUrl}/registrations/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.fullName.trim(),
-          email: form.email.trim().toLowerCase(),
-          phone: form.phone.trim(),
-          college: form.college.trim(),
-          city: finalCity,
-          state: form.state.trim(),
-          gradYear: form.courseYear,
-          passType: backendPassType,
-          tracks,
-          existingPassId: existingPass?.id || undefined,
-        }),
-        signal: AbortSignal.timeout(8000),
-      })
+      let res: Response
+      try {
+        res = await fetch('/api/registrations/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.fullName.trim(),
+            email: form.email.trim().toLowerCase(),
+            phone: form.phone.trim(),
+            college: form.college.trim(),
+            city: finalCity,
+            state: form.state.trim(),
+            gradYear: form.courseYear,
+            passType: backendPassType,
+            tracks,
+            existingPassId: existingPass?.id || undefined,
+          }),
+          signal: AbortSignal.timeout(8000),
+        })
+      } catch {
+        // Fallback to direct backend URL if proxy unhandled
+        res = await fetch(`${apiUrl}/registrations/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.fullName.trim(),
+            email: form.email.trim().toLowerCase(),
+            phone: form.phone.trim(),
+            college: form.college.trim(),
+            city: finalCity,
+            state: form.state.trim(),
+            gradYear: form.courseYear,
+            passType: backendPassType,
+            tracks,
+            existingPassId: existingPass?.id || undefined,
+          }),
+          signal: AbortSignal.timeout(8000),
+        })
+      }
 
       const data = await res.json().catch(() => ({}))
 

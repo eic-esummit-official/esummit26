@@ -79,7 +79,8 @@ async function bootstrap(): Promise<void> {
       if (
         /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
         /\.vercel\.app$/.test(origin) ||
-        /pec\.ac\.in$/.test(origin)
+        /pec\.ac\.in$/.test(origin) ||
+        /eicpec\.com$/.test(origin)
       ) {
         return callback(null, true)
       }
