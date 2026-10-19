@@ -1,0 +1,118 @@
+// app/api/chat/route.ts
+// Server-side LLM proxy — keeps Groq API key private and injects E-Summit context.
+
+import { NextRequest, NextResponse } from 'next/server'
+import { buildSystemPrompt, buildEventContext } from '@/lib/chatbot-context'
+import { getGeminiServerClient, MODEL_FAST, MODEL_MAIN } from '@/lib/gemini-server'
+import type { GeminiFunction, GeminiMessage } from '@/lib/gemini-client'
+import { localAnswer } from '@/lib/local-answers'
+
+export const runtime = 'nodejs'
+
+// Simple IP-based sliding window rate limiter: max 30 requests per minute per IP
+const RATE_LIMIT_WINDOW_MS = 60 * 1000
+const MAX_REQUESTS_PER_WINDOW = 30
+const ipRequestHistory = new Map<string, number[]>()
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const windowStart = now - RATE_LIMIT_WINDOW_MS
+  const timestamps = (ipRequestHistory.get(ip) || []).filter((t) => t > windowStart)
+
+  if (timestamps.length >= MAX_REQUESTS_PER_WINDOW) {
+    return false
+  }
+
+  timestamps.push(now)
+  ipRequestHistory.set(ip, timestamps)
+
+  if (ipRequestHistory.size > 200) {
+    for (const [key, list] of ipRequestHistory.entries()) {
+      if (!list.some((t) => t > windowStart)) {
+        ipRequestHistory.delete(key)
+      }
+    }
+  }
+  return true
+}
+
+interface ChatRequestBody {
+  messages: GeminiMessage[]
+  tools?: GeminiFunction[]
+  maxTokens?: number
+  model?: string
+  mode?: 'chat' | 'summarize'
+}
+
+function isValidMessage(msg: unknown): msg is GeminiMessage {
+  if (!msg || typeof msg !== 'object') return false
+  const m = msg as GeminiMessage
+  return ['user', 'assistant', 'system', 'tool'].includes(m.role)
+}
+
+export async function POST(request: NextRequest) {
+  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  if (!checkRateLimit(clientIp)) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a minute before chatting again.' },
+      { status: 429 }
+    )
+  }
+
+  let body: ChatRequestBody
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const { messages, tools = [], maxTokens = 512, model, mode = 'chat' } = body
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return NextResponse.json({ error: 'messages array is required' }, { status: 400 })
+  }
+
+  if (!messages.every(isValidMessage)) {
+    return NextResponse.json({ error: 'Invalid message format' }, { status: 400 })
+  }
+
+  const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || ''
+
+  // Cap history size to prevent abuse
+  const windowedMessages = messages.slice(-24)
+
+  // 1. Check for Gemini keys and use them for generation
+  const geminiApiKeys = process.env.GEMINI_API_KEYS
+  if (geminiApiKeys) {
+    try {
+      const gemini = getGeminiServerClient()
+      const eventContext = buildEventContext()
+      const systemPrompt = buildSystemPrompt(eventContext)
+
+      const resolvedModel = mode === 'summarize' ? MODEL_FAST : MODEL_MAIN
+
+      const result = await gemini.generateContent(
+        windowedMessages,
+        tools,
+        systemPrompt,
+        maxTokens,
+        resolvedModel,
+      )
+
+      return NextResponse.json(result)
+    } catch (error) {
+      console.warn('[api/chat] Gemini upstream failed, falling back to local assistant:', error)
+    }
+  }
+
+  // 2. Intelligent Festival Intelligence Fallback (handles all summit queries without failure)
+  const local = localAnswer(lastUserMessage)
+  if (local) {
+    return NextResponse.json({ text: local })
+  }
+
+  // General fallback response
+  return NextResponse.json({
+    text: `I'm the official **PEC E-Summit 2026 Assistant**! Ask me anything about our keynote speakers, Day 1 & Day 2 schedule, the ₹15L+ prize pool Pitch Competition & Hackathon, or campus navigation directions at Punjab Engineering College!`,
+  })
+}

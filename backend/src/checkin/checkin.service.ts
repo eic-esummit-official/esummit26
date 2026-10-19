@@ -1,0 +1,249 @@
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { PrismaService } from '../prisma/prisma.service'
+import { verifySignedQrToken } from '../common/utils/qr.util'
+import { VerifyQrDto } from './dto/verify-qr.dto'
+import { ManualLookupDto } from './dto/manual-lookup.dto'
+import { PASS_TIERS_CATALOG } from '../registrations/pass-types.config'
+
+@Injectable()
+export class CheckinService {
+  private readonly logger = new Logger(CheckinService.name)
+  private readonly qrSecret: string
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
+  ) {
+    this.qrSecret = this.config.getOrThrow<string>('QR_HMAC_SECRET')
+  }
+
+  async verifyQrCheckIn(dto: VerifyQrDto, volunteerUserId: string) {
+    const cleanToken = dto.qrToken.trim()
+    const gateName = dto.gateName?.trim() || 'MAIN_GATE'
+
+    const verification = verifySignedQrToken(cleanToken, this.qrSecret)
+    if (!verification.valid || !verification.payload) {
+      throw new BadRequestException(
+        `Invalid or forged QR token: ${verification.reason || 'Cryptographic signature mismatch.'}`
+      )
+    }
+
+    const { userId, passId } = verification.payload
+
+    const registration = await this.prisma.registration.findFirst({
+      where: {
+        OR: [{ passId: passId.toUpperCase() }, { qrToken: cleanToken }],
+      },
+      include: {
+        user: true,
+        payment: true,
+      },
+    })
+
+    if (!registration) {
+      throw new NotFoundException(`No registration record found for Pass ID ${passId}.`)
+    }
+
+    // Revoked passes must NEVER allow gate entry, even with a valid QR signature.
+    if (registration.isRevoked) {
+      this.logger.warn(`Revoked pass attempt: ${registration.passId} (${registration.user.name})`)
+      throw new BadRequestException(
+        `Pass ${registration.passId} has been revoked and cannot be used for entry.`
+      )
+    }
+
+    if (registration.isCheckedIn) {
+      const lastCheckIn = await this.prisma.checkIn.findFirst({
+        where: { userId: registration.userId },
+        include: { scannedBy: { select: { name: true, email: true } } },
+        orderBy: { timestamp: 'desc' },
+      })
+
+      const formattedTime = lastCheckIn
+        ? new Date(lastCheckIn.timestamp).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          })
+        : 'earlier'
+
+      throw new ConflictException({
+        statusCode: 409,
+        error: 'Duplicate Check-In Prevented',
+        message: `Pass ${registration.passId} was ALREADY checked in at ${
+          lastCheckIn?.gateName || 'GATE'
+        } at ${formattedTime}. Pass reuse is prohibited.`,
+        alreadyCheckedIn: true,
+        previousCheckIn: lastCheckIn,
+        delegate: {
+          name: registration.user.name,
+          college: registration.user.college,
+          passId: registration.passId,
+        },
+      })
+    }
+
+    // Atomic Conditional Update: Only updates if isCheckedIn is STILL false
+    const updateResult = await this.prisma.registration.updateMany({
+      where: {
+        id: registration.id,
+        isCheckedIn: false,
+      },
+      data: {
+        isCheckedIn: true,
+      },
+    })
+
+    if (updateResult.count === 0) {
+      const lastCheckIn = await this.prisma.checkIn.findFirst({
+        where: { userId: registration.userId },
+        include: { scannedBy: { select: { name: true, email: true } } },
+        orderBy: { timestamp: 'desc' },
+      })
+
+      throw new ConflictException({
+        statusCode: 409,
+        error: 'Duplicate Check-In Prevented (Concurrency Lock)',
+        message: `Pass ${registration.passId} was ALREADY checked in. Simultaneous scan collision prevented.`,
+        alreadyCheckedIn: true,
+        previousCheckIn: lastCheckIn,
+      })
+    }
+
+    const checkInRecord = await this.prisma.checkIn.create({
+      data: {
+        userId: registration.userId,
+        scannedById: volunteerUserId,
+        gateName,
+        timestamp: new Date(),
+      },
+    })
+
+    const catalog = PASS_TIERS_CATALOG.find((t) => t.enumType === registration.passType)
+
+    this.logger.log(
+      `Gate check-in SUCCESS: Pass ${registration.passId} (${registration.user.name}) at ${gateName}`
+    )
+
+    return {
+      status: 'VERIFIED',
+      message: 'Gate Entry Approved',
+      passId: registration.passId,
+      delegateName: registration.user.name,
+      delegateEmail: registration.user.email,
+      delegateCollege: registration.user.college,
+      passType: registration.passType,
+      tierBadge: catalog?.badgeTitle || 'OFFICIAL PASS',
+      tracks: (registration as any).tracks,
+      gateName: checkInRecord.gateName,
+      checkInTime: checkInRecord.timestamp,
+    }
+  }
+
+  async manualLookup(dto: ManualLookupDto, volunteerUserId?: string) {
+    const q = dto.query.trim()
+    if (q.length < 3) {
+      throw new BadRequestException('Search query must be at least 3 characters long.')
+    }
+    const gateName = dto.gateName?.trim() || 'MAIN_GATE'
+
+    const attendees = await this.prisma.registration.findMany({
+      where: {
+        OR: [
+          { passId: { contains: q, mode: 'insensitive' } },
+          { user: { name: { contains: q, mode: 'insensitive' } } },
+          { user: { email: { contains: q, mode: 'insensitive' } } },
+          { user: { phone: { contains: q, mode: 'insensitive' } } },
+        ],
+      },
+      include: {
+        user: true,
+        payment: true,
+      },
+      take: 10,
+    })
+
+    if (attendees.length === 0) {
+      throw new NotFoundException(`No attendees found matching query "${q}".`)
+    }
+
+    if (dto.performCheckIn && attendees.length === 1) {
+      const reg = attendees[0]
+
+      const updateResult = await this.prisma.registration.updateMany({
+        where: { id: reg.id, isCheckedIn: false },
+        data: { isCheckedIn: true },
+      })
+
+      if (updateResult.count === 0) {
+        throw new ConflictException(`Pass ${reg.passId} is already checked in.`)
+      }
+
+      await this.prisma.checkIn.create({
+        data: {
+          userId: reg.userId,
+          scannedById: volunteerUserId || reg.userId,
+          gateName,
+        },
+      })
+
+      return {
+        status: 'CHECKED_IN',
+        attendee: reg,
+      }
+    }
+
+    return {
+      count: attendees.length,
+      results: attendees.map((a) => ({
+        id: a.id,
+        passId: a.passId,
+        passType: a.passType,
+        isCheckedIn: a.isCheckedIn,
+        delegateName: a.user.name,
+        delegateEmail: a.user.email,
+        delegateCollege: a.user.college,
+        delegatePhone: a.user.phone ? `${a.user.phone.slice(0, 3)}****${a.user.phone.slice(-3)}` : null,
+        createdAt: a.createdAt,
+      })),
+    }
+  }
+
+  async getCheckInStats() {
+    const totalCheckIns = await this.prisma.checkIn.count()
+
+    const byGate = await this.prisma.checkIn.groupBy({
+      by: ['gateName'],
+      _count: { id: true },
+    })
+
+    const recentLogs = await this.prisma.checkIn.findMany({
+      take: 20,
+      orderBy: { timestamp: 'desc' },
+      include: {
+        user: { select: { id: true, name: true, college: true, email: true } },
+        scannedBy: { select: { id: true, name: true } },
+      },
+    })
+
+    return {
+      totalCheckIns,
+      byGate: byGate.map((g) => ({ gate: g.gateName, count: g._count.id })),
+      recentLogs: recentLogs.map((l) => ({
+        id: l.id,
+        delegateName: l.user.name,
+        delegateCollege: l.user.college,
+        gate: l.gateName,
+        scannedBy: l.scannedBy.name,
+        timestamp: l.timestamp,
+      })),
+    }
+  }
+}

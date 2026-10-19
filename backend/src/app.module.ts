@@ -1,0 +1,82 @@
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { validateEnv } from './config/env.validation'
+import { PrismaModule } from './prisma/prisma.module'
+import { CacheModule } from './common/cache/cache.module'
+import { AuthModule } from './auth/auth.module'
+import { RegistrationsModule } from './registrations/registrations.module'
+import { PaymentsModule } from './payments/payments.module'
+import { CheckinModule } from './checkin/checkin.module'
+import { CmsModule } from './cms/cms.module'
+
+import { AdminModule } from './admin/admin.module'
+import { StorageModule } from './storage/storage.module'
+import { SubscribersModule } from './subscribers/subscribers.module'
+import { EmailModule } from './email/email.module'
+import { UsersModule } from './users/users.module'
+import { FundingConclaveModule } from './funding-conclave/funding-conclave.module'
+import { HealthController } from './health/health.controller'
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
+import { RolesGuard } from './common/guards/roles.guard'
+import { AuditInterceptor } from './common/interceptors/audit.interceptor'
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
+import { IdempotencyInterceptor } from './common/interceptors/idempotency.interceptor'
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware'
+import { ContentTypeMiddleware } from './common/middleware/content-type.middleware'
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      validate: validateEnv,
+    }),
+
+    // Rate limiting
+    ThrottlerModule.forRoot([
+      { name: 'default', ttl: 60_000, limit: 900 },
+      { name: 'auth', ttl: 60_000, limit: 30 },
+    ]),
+
+    PrismaModule,
+    CacheModule,
+    EmailModule,
+    AuthModule,
+    RegistrationsModule,
+    PaymentsModule,
+    CheckinModule,
+    CmsModule,
+    AdminModule,
+    StorageModule,
+    SubscribersModule,
+    UsersModule,
+    FundingConclaveModule,
+  ],
+
+  controllers: [HealthController],
+  providers: [
+    // Order: authenticate, then authorize, then rate-limit.
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // Observability & logging for every request
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+    // Idempotency check for data-modifying mutations
+    { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
+    // Writes an immutable audit row for every POST/PUT/PATCH/DELETE.
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    // Maps Prisma error codes to clean HTTP errors — no schema leakage.
+    { provide: APP_FILTER, useClass: PrismaExceptionFilter },
+    // Catch-all for other unexpected errors.
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+  ],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestIdMiddleware, ContentTypeMiddleware).forRoutes('*')
+  }
+}

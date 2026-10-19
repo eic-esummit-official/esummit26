@@ -1,0 +1,325 @@
+import type { Metadata, Viewport } from 'next'
+import dynamic from 'next/dynamic'
+import localFont from 'next/font/local'
+import { Inter, Marcellus } from 'next/font/google'
+import './globals.css'
+import { SITE_URL, absoluteUrl, getOgImageUrl } from '@/lib/siteConfig'
+import SmoothScrollProvider from '@/components/Providers/SmoothScrollProvider'
+import ChevronRouteTransition from '@/components/Common/ChevronRouteTransition'
+import SessionProviderWrapper from '@/components/Providers/SessionProviderWrapper'
+import GlobalScrollProgress from '@/components/Common/GlobalScrollProgress'
+import Concierge from '@/components/Concierge'
+import OnboardingGate from '@/components/Onboarding/OnboardingGate'
+import { AuthProvider } from '@/context/AuthContext'
+import { ThemeProvider } from '@/context/ThemeContext'
+import ServiceWorkerCleanup from '@/components/Common/ServiceWorkerCleanup'
+import AnnouncementBanner from '@/components/Common/AnnouncementBanner'
+
+const asimovian = localFont({
+  src: '../public/fonts/Asimovian-Regular.ttf',
+  variable: '--font-asimovian',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const marcellus = Marcellus({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-marcellus',
+  display: 'swap',
+})
+
+export const viewport: Viewport = {
+  themeColor: '#050B06',
+}
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/esummit-mark.png',
+    shortcut: '/favicon.ico',
+    apple: '/icon-192.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'E-SUMMIT',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'geo.region': 'IN-CH',
+    'geo.placename': 'Chandigarh, Punjab Engineering College',
+    'geo.position': '30.765515;76.784261',
+    'ICBM': '30.765515, 76.784261',
+  },
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  title: 'E-Summit 2026 — E-Cell PEC, Chandigarh',
+  description:
+    'E-Summit 2026 is the flagship entrepreneurship summit of E-Cell Punjab Engineering College, Chandigarh. Join North India\'s premier high-voltage platform for student innovators, startup founders, and venture builders.',
+  keywords: [
+    'E-Summit 2026',
+    'E-Summit',
+    'E-Cell PEC',
+    'entrepreneurship summit',
+    'startup fest',
+    'Punjab Engineering College',
+    'Chandigarh',
+    'student innovation',
+  ],
+  authors: [{ name: 'E-Cell PEC', url: SITE_URL }],
+  openGraph: {
+    title: 'PEC E-Summit 2026 — November 14–15',
+    description:
+      'The flagship entrepreneurship summit of E-Cell PEC, Chandigarh. Pitches, panels, expo, hackathon, and VIP investor networking.',
+    url: SITE_URL,
+    siteName: 'PEC E-Summit 2026',
+    images: [
+      {
+        url: getOgImageUrl('PEC E-Summit 2026', 'NOVEMBER 14-15'),
+        width: 1200,
+        height: 630,
+        alt: 'PEC E-Summit 2026 Official Banner',
+      },
+      {
+        url: '/readme-hero.png',
+        width: 1200,
+        height: 630,
+        alt: 'PEC E-Summit 2026 Banner',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PEC E-Summit 2026',
+    description: "Build and launch at Chandigarh's premier student entrepreneurship summit.",
+    images: [getOgImageUrl('PEC E-Summit 2026', 'NOVEMBER 14-15')],
+  },
+}
+
+const JSON_LD_EVENT_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': ['Event', 'BusinessEvent', 'Festival'],
+  name: 'PEC E-Summit 2026',
+  description:
+    "North India's largest student entrepreneurship summit at Punjab Engineering College. 2 days of keynotes, high-stakes startup pitches, hackathons, and angel investor networking.",
+  startDate: '2026-11-14T09:00:00+05:30',
+  endDate: '2026-11-15T20:00:00+05:30',
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  maximumAttendeeCapacity: 5000,
+  location: {
+    '@type': 'Place',
+    name: 'Punjab Engineering College (PEC)',
+    hasMap: 'https://maps.google.com/?q=Punjab+Engineering+College+Sector+12+Chandigarh',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Sector 12',
+      addressLocality: 'Chandigarh',
+      postalCode: '160012',
+      addressRegion: 'Chandigarh',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 30.765515,
+      longitude: 76.784261,
+    },
+    telephone: '+91 90413 09108',
+  },
+  image: [
+    getOgImageUrl('PEC E-Summit 2026', 'NOVEMBER 14-15'),
+    absoluteUrl('/readme-hero.png'),
+    absoluteUrl('/esummit-mark.png'),
+  ],
+  offers: {
+    '@type': 'AggregateOffer',
+    url: absoluteUrl('/passes'),
+    priceCurrency: 'INR',
+    lowPrice: 0,
+    highPrice: 5000,
+    availability: 'https://schema.org/InStock',
+    validFrom: '2026-01-01T00:00:00+05:30',
+  },
+  organizer: {
+    '@type': 'Organization',
+    name: 'EIC - Entrepreneurship & Incubation Cell, PEC',
+    url: SITE_URL,
+    logo: absoluteUrl('/esummit-logo.png'),
+    sameAs: [
+      'https://instagram.com/ecell.pec',
+      'https://twitter.com/ecell_pec',
+      'https://linkedin.com/company/ecell-pec',
+    ],
+  },
+}
+
+const JSON_LD_ORGANIZATION_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'CollegeOrUniversity',
+  name: 'Punjab Engineering College',
+  alternateName: ['PEC Chandigarh', 'PEC', 'Punjab Engineering College (Deemed to be University)'],
+  url: 'https://pec.ac.in',
+  logo: absoluteUrl('/pec-logo.png'),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Sector 12',
+    addressLocality: 'Chandigarh',
+    postalCode: '160012',
+    addressRegion: 'Chandigarh',
+    addressCountry: 'IN',
+  },
+  sameAs: [
+    'https://en.wikipedia.org/wiki/Punjab_Engineering_College',
+    'https://www.wikidata.org/wiki/Q7260341',
+    'https://www.linkedin.com/school/punjab-engineering-college/',
+  ],
+}
+
+const JSON_LD_FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Who can attend PEC E-Summit 2026?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'PEC E-Summit is open to all college students, recent graduates, early-stage founders, angel investors, and tech professionals across India.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where is PEC E-Summit held?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The summit is held at the historic campus of Punjab Engineering College (PEC), Sector 12, Chandigarh, 160012.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do startups apply for funding and pitches at E-Summit?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `Startups can apply for the Funding Conclave and Pitch Competition via the official Passes portal (${absoluteUrl('/passes')}) by selecting Silver, Gold, or Diamond startup tiers.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Are there free passes for students?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, free student delegate passes are available for general sessions, keynote panels, and the startup expo.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the Hackathon format?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The 36-hour hackathon features problem statements around AI, FinTech, and Climate Tech, with mentorship and cash awards.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can startups exhibit at the summit?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, early-stage startups can secure exhibition booths through the Startup Conclave tiers.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How can corporate organizations sponsor PEC E-Summit?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `Sponsors can review tier options at ${absoluteUrl('/sponsors')} or reach out directly to ecell@pec.edu.in.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is accommodation available for outstation attendees?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, limited hostel and partner accommodation is facilitated for verified outstation participants registered for multi-day tracks.',
+      },
+    },
+  ],
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('esummit-theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(t==='light'){document.documentElement.classList.add('light');document.documentElement.classList.remove('dark');}else{document.documentElement.classList.add('dark');document.documentElement.classList.remove('light');}}catch(e){}})()`,
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_EVENT_SCHEMA) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZATION_SCHEMA) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_FAQ_SCHEMA) }}
+        />
+      </head>
+      <body
+        className={`noise ${asimovian.variable} ${inter.variable} ${marcellus.variable} font-body text-primary bg-void`}
+        suppressHydrationWarning
+      >
+        <ServiceWorkerCleanup />
+        <ThemeProvider>
+          <AuthProvider>
+            <SessionProviderWrapper>
+              <AnnouncementBanner />
+              <GlobalScrollProgress />
+              <SmoothScrollProvider>
+                <ChevronRouteTransition>
+                  {children}
+                </ChevronRouteTransition>
+              </SmoothScrollProvider>
+            </SessionProviderWrapper>
+
+            {/* Attendee Profile Onboarding Gate */}
+            <OnboardingGate />
+
+            {/* Floating AI Concierge — outside all wrappers so fixed positioning works */}
+            <Concierge />
+          </AuthProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}

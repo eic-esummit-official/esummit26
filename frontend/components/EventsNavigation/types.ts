@@ -1,0 +1,75 @@
+import type { CampusVenue } from '@/lib/data'
+export type { CampusVenue }
+
+export interface CampusGraphNode {
+  coords: [number, number]
+  connections: string[]
+}
+
+export interface DayEventVenue {
+  eventId: string
+  title: string
+  time: string
+  venue: string
+  venueName: string
+}
+
+export interface UserLocation {
+  coordinates: [number, number]
+  accuracy: number
+  timestamp: number
+  heading?: number | null
+}
+
+export interface RouteData {
+  coordinates: [number, number][]
+  distance: number
+  duration: number
+  from: [number, number]
+  to: [number, number]
+}
+
+export interface NavigationState {
+  selectedEvent: DayEventVenue | null
+  userLocation: UserLocation | null
+  route: RouteData | null
+  isLoading: boolean
+  error: string | null
+  useFallbackOrigin: boolean
+}
+
+export type DayKey = 'day1' | 'day2'
+
+export interface MapViewport {
+  center: [number, number]
+  zoom: number
+  pitch: number
+  bearing: number
+}
+
+export const VENUE_TYPE_COLORS: Record<CampusVenue['type'], string> = {
+  auditorium: '#FF4D3D',
+  expo: '#FF8C42',
+  seminar: '#8AC53F',
+  admin: '#4341A8',
+  lab: '#8AC53F',
+  social: '#A8EE4A',
+  entrance: '#8AC53F',
+}
+
+export const VENUE_TYPE_LABELS: Record<CampusVenue['type'], string> = {
+  auditorium: 'Auditorium',
+  expo: 'Expo Hall',
+  seminar: 'Seminar Hall',
+  admin: 'Admin Block',
+  lab: 'Lab',
+  social: 'Social',
+  entrance: 'Entrance',
+}
+
+export const DEFAULT_VIEWPORT: MapViewport = {
+  center: [76.7749, 30.7415],
+  zoom: 18,
+  pitch: 45,
+  bearing: 0,
+}
