@@ -34,6 +34,40 @@ export class HealthController {
   }
 
   /**
+   * Diagnostic probe to identify which MongoDB cluster/database Vercel is connected to.
+   */
+  @Public()
+  @Get('db-status')
+  async getDbStatus() {
+    const rawUrl = process.env.DATABASE_URL || ''
+    const sanitizedUrl = rawUrl.replace(/:([^:@]+)@/, ':****@')
+    let registrationCount = 0
+    let latestPass: string | null = null
+    try {
+      registrationCount = await this.prisma.registration.count()
+      const latest = await this.prisma.registration.findFirst({
+        orderBy: { createdAt: 'desc' },
+        select: { passId: true, createdAt: true },
+      })
+      latestPass = latest ? `${latest.passId} (${latest.createdAt.toISOString()})` : null
+    } catch (err) {
+      return {
+        status: 'error',
+        message: err instanceof Error ? err.message : 'DB query failed',
+        sanitizedUrl,
+      }
+    }
+
+    return {
+      status: 'connected',
+      sanitizedUrl,
+      registrationCount,
+      latestPass,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  /**
    * Detailed health probe for authorized admins/monitoring services.
    */
   @Roles(Role.ADMIN)
