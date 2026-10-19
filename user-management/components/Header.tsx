@@ -2,8 +2,9 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { Download, RefreshCw, ExternalLink, Database } from 'lucide-react'
+import { Download, RefreshCw, ExternalLink, Database, LogOut } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
+import { useRouter } from 'next/navigation'
 
 interface HeaderProps {
   totalCount: number
@@ -13,12 +14,19 @@ interface HeaderProps {
 }
 
 export function Header({ totalCount, onRefresh, isRefreshing, category = 'startup' }: HeaderProps) {
+  const router = useRouter()
+
   const handleExport = () => {
     if (category === 'users') {
       window.open('/api/users/export', '_blank')
     } else {
       window.open(`/api/applications/export?category=${category}`, '_blank')
     }
+  }
+
+  const handleLogout = async () => {
+    await fetch('/api/auth', { method: 'DELETE' })
+    router.replace('/login')
   }
 
   return (
@@ -98,6 +106,17 @@ export function Header({ totalCount, onRefresh, isRefreshing, category = 'startu
           >
             <Download size={13} className="stroke-[2.5]" />
             <span>EXPORT CSV</span>
+          </button>
+
+          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Lock & log out"
+            className="min-h-[38px] h-9 sm:h-10 box-border inline-flex items-center justify-center gap-1.5 px-3.5 rounded-full font-mono-data text-[11px] font-bold uppercase tracking-wider leading-none cursor-pointer border border-slate-200 dark:border-white/10 transition-all bg-white dark:bg-[#12241F] text-red-600 dark:text-red-400 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 shadow-xs"
+          >
+            <LogOut size={13} />
+            <span className="hidden sm:inline">LOCK</span>
           </button>
         </div>
       </div>
