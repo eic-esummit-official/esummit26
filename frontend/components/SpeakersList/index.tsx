@@ -105,10 +105,14 @@ export default function SpeakersList() {
         if (cat.includes('invest') || cat.includes('vc')) category = 'investors'
         else if (cat.includes('creator') || cat.includes('tech') || cat.includes('mentor')) category = 'creators'
 
+        const fallbackImg = PREVIOUS_SPEAKERS.find(
+          (p) => p.name.toLowerCase() === s.name.toLowerCase()
+        )?.image
+
         return {
           name: s.name,
           role: s.role || s.title,
-          image: s.avatarUrl || '',
+          image: s.avatarUrl || fallbackImg || '',
           category,
         }
       })

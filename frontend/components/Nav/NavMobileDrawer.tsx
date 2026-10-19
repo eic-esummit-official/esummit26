@@ -144,7 +144,7 @@ export default function NavMobileDrawer({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <ThemeToggle variant="icon" className="shadow-sm" />
+                  {/* <ThemeToggle variant="icon" className="shadow-sm" /> */}
                   <button
                     onClick={onClose}
                     className="min-h-[44px] min-w-[44px] rounded-full bg-panel-alt text-primary font-bold flex items-center justify-center border border-border-subtle hover:border-mint hover:text-mint transition-all cursor-pointer shadow-sm"

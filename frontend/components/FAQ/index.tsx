@@ -114,7 +114,7 @@ export default function FAQ({ isStandalonePage = false }: { isStandalonePage?: b
           ) : (
             <div className="mb-12 flex flex-col items-center justify-center text-center">
               <p className="font-body text-sm sm:text-base leading-relaxed text-gray-300 max-w-lg">
-                If you don&apos;t find your answer here, our Concierge agent (bottom right) can assist — or email us directly at{' '}
+                If you don&apos;t find your answer here, feel free to email us directly at{' '}
                 <a href="mailto:info@ecellpec.in" className="text-mint underline underline-offset-4 font-semibold">
                   info@ecellpec.in
                 </a>
@@ -144,7 +144,7 @@ export default function FAQ({ isStandalonePage = false }: { isStandalonePage?: b
             {/* Bottom Support Note */}
             <div className="mt-8 text-center">
               <p className="font-body text-xs sm:text-sm text-gray-400">
-                Still have questions? Chat with our AI Concierge at the bottom-right or email{' '}
+                Still have questions? Reach out to our team directly at{' '}
                 <a href="mailto:eicpec@pec.edu.in" className="text-mint underline underline-offset-4 font-semibold hover:text-white transition-colors">
                   eicpec@pec.edu.in
                 </a>

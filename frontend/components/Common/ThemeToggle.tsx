@@ -11,6 +11,10 @@ interface ThemeToggleProps {
 }
 
 export default function ThemeToggle({ className = '', variant = 'pill' }: ThemeToggleProps) {
+  // Light mode temporarily disabled — site is locked to dark mode
+  return null
+
+  /*
   const { theme, toggleTheme, isLoaded } = useTheme()
   const isLight = isLoaded && theme === 'light'
 
@@ -70,4 +74,5 @@ export default function ThemeToggle({ className = '', variant = 'pill' }: ThemeT
       </span>
     </button>
   )
+  */
 }

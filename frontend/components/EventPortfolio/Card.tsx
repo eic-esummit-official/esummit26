@@ -17,7 +17,9 @@ interface CardProps {
 
 export function Card({ event, index, total, onSelect }: CardProps) {
   const isComp = ['hackathon', 'competition', 'quiz', 'auction', 'strategy'].some(keyword => event.category.toLowerCase().includes(keyword))
-  const registerLink = isComp ? (event.registrationUrl || 'https://unstop.com') : '/register'
+  const hasLink = Boolean(event.registrationUrl) || isComp
+  const registerLink = event.registrationUrl || (isComp ? 'https://unstop.com' : '/register')
+  const buttonLabel = isComp ? 'Register' : 'Apply'
 
   return (
     <motion.div
@@ -105,7 +107,7 @@ export function Card({ event, index, total, onSelect }: CardProps) {
           </span>
 
           <div className="flex items-center gap-2">
-            {isComp && (
+            {hasLink && (
               <>
                 <a
                   href={registerLink}
@@ -114,7 +116,7 @@ export function Card({ event, index, total, onSelect }: CardProps) {
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-center justify-center h-7 px-3.5 rounded-lg bg-mint text-void font-mono-data text-[10px] font-black uppercase tracking-wider hover:brightness-110 hover:scale-105 transition-all"
                 >
-                  Register
+                  {buttonLabel}
                 </a>
                 <div className="flex items-center gap-1.5 font-mono-data text-[10.5px] font-bold text-mint group-hover:translate-x-0.5 transition-transform">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-mint/15 text-mint group-hover:bg-mint group-hover:text-void transition-colors shadow-xs">

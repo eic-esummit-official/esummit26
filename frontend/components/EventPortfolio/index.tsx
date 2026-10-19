@@ -58,6 +58,7 @@ export default function EventPortfolioShowcase() {
         expectedParticipation: e.expectedParticipation,
         tags: e.tags,
         partner: e.partner ?? undefined,
+        registrationUrl: e.registrationUrl ?? null,
       }
     })
   }, [data.events, data.portfolioMedia])

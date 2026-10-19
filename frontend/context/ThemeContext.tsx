@@ -24,18 +24,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark')
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Initialize theme from DOM attribute (set by head script) or localStorage
+  // Light mode temporarily disabled — enforce dark mode site-wide
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
-      const domTheme = document.documentElement.getAttribute('data-theme') as Theme | null
-      
-      const initialTheme: Theme = stored || domTheme || 'dark'
-      
-      setThemeState(initialTheme)
-      applyTheme(initialTheme)
+      setThemeState('dark')
+      applyTheme('dark')
     } catch {
-      // Default fallback
       applyTheme('dark')
     } finally {
       setIsLoaded(true)
@@ -44,14 +38,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const applyTheme = (newTheme: Theme) => {
     const root = document.documentElement
-    root.setAttribute('data-theme', newTheme)
-    if (newTheme === 'light') {
-      root.classList.add('light')
-      root.classList.remove('dark')
-    } else {
-      root.classList.add('dark')
-      root.classList.remove('light')
-    }
+    // Enforce dark theme
+    root.setAttribute('data-theme', 'dark')
+    root.classList.add('dark')
+    root.classList.remove('light')
   }
 
   const setTheme = useCallback((newTheme: Theme) => {

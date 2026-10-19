@@ -315,8 +315,8 @@ export default function RootLayout({
             {/* Attendee Profile Onboarding Gate */}
             <OnboardingGate />
 
-            {/* Floating AI Concierge — outside all wrappers so fixed positioning works */}
-            <Concierge />
+            {/* Floating AI Concierge (Chatbot temporarily disabled) */}
+            {/* <Concierge /> */}
           </AuthProvider>
         </ThemeProvider>
       </body>

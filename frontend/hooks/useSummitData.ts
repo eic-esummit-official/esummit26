@@ -41,7 +41,7 @@ const FALLBACK_EVENTS: CmsEvent[] = MASTER_EVENTS.map((e, i) => ({
   expectedParticipation: e.expectedParticipation,
   tags: e.tags,
   partner: e.partner ?? null,
-  registrationUrl: null,
+  registrationUrl: e.registrationUrl ?? null,
   type: 'general',
   track: null,
   day: 1,

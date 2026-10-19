@@ -310,7 +310,8 @@ export default function Nav() {
             <span className="text-white keep-white">DOWNLOAD BROCHURE</span>
           </a>
           
-          <button
+          {/* Mobile AI Concierge button (Chatbot temporarily disabled) */}
+          {/* <button
             onClick={() => {
               if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('toggle-concierge'))
@@ -321,7 +322,7 @@ export default function Nav() {
           >
             <Bot size={18} strokeWidth={2.5} />
             <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-[#74FB44] border-2 border-white animate-pulse" />
-          </button>
+          </button> */}
         </div>
       </div>
 

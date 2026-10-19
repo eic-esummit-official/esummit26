@@ -128,10 +128,10 @@ export default function NavHeader({
             )}
           </Magnetic>
 
-          {/* Theme Toggle Button */}
-          <Magnetic strength={0.3}>
+          {/* Theme Toggle Button (Light mode disabled) */}
+          {/* <Magnetic strength={0.3}>
             <ThemeToggle variant="icon" />
-          </Magnetic>
+          </Magnetic> */}
 
           {/* Hamburger Trigger Button */}
           <Magnetic strength={0.3}>

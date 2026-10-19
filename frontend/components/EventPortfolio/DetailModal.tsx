@@ -209,14 +209,20 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
 
           {/* Action Footer */}
           <div className="p-3.5 sm:p-5 border-t border-border-subtle bg-panel flex items-center gap-2.5 shrink-0 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
-            {isComp ? (
+            {event.registrationUrl ? (
               <a
-                href={registerLink}
+                href={event.registrationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-1.5 h-11 px-5 rounded-full btn-mint-gradient font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity whitespace-nowrap cursor-pointer shadow-md"
               >
-                <span>Register on Unstop</span>
+                <span>
+                  {event.registrationUrl.includes('google')
+                    ? 'Apply via Google Form'
+                    : isComp
+                    ? 'Register on Unstop'
+                    : 'Apply Now'}
+                </span>
                 <ExternalLink size={14} className="shrink-0" />
               </a>
             ) : (
