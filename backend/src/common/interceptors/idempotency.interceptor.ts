@@ -6,23 +6,36 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common'
-import { Observable, of } from 'rxjs'
-import { tap } from 'rxjs/operators'
+import { from, Observable, of } from 'rxjs'
+import { switchMap, tap } from 'rxjs/operators'
 import type { Request, Response } from 'express'
+import { CacheService } from '../cache/cache.service'
 
-interface CachedEntry {
+interface IdempotencyEntry {
   status: 'IN_FLIGHT' | 'COMPLETED'
   response?: unknown
   statusCode?: number
-  timestamp: number
 }
 
-const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
+const IDEMPOTENCY_TTL_SEC = 24 * 60 * 60 // 24 hours
 
+/**
+ * IdempotencyInterceptor — persisted via CacheService (Upstash Redis on Vercel,
+ * in-memory fallback for local dev).
+ *
+ * On a request carrying an Idempotency-Key / X-Idempotency-Key header:
+ *   • MISS  → mark IN_FLIGHT, process normally, store COMPLETED response.
+ *   • HIT COMPLETED → replay stored response, skip handler.
+ *   • HIT IN_FLIGHT → 409 Conflict (concurrent duplicate).
+ *
+ * Because CacheService.get() is now async, the intercept uses from(Promise)
+ * + switchMap to stay within RxJS without blocking the event loop.
+ */
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
   private readonly logger = new Logger(IdempotencyInterceptor.name)
-  private static readonly cache = new Map<string, CachedEntry>()
+
+  constructor(private readonly cacheService: CacheService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const http = context.switchToHttp()
@@ -35,9 +48,19 @@ export class IdempotencyInterceptor implements NestInterceptor {
     }
 
     const userId = (req as any).user?.id || req.ip || 'anon'
-    const key = `idem:${req.method}:${req.path}:${userId}:${rawKey.trim()}`
-    const now = Date.now()
-    const existing = IdempotencyInterceptor.cache.get(key)
+    const cacheKey = `idem:${req.method}:${req.path}:${userId}:${rawKey.trim()}`
+
+    // Bridge async cache lookup into Observable
+    return from(this.resolve(cacheKey, req, res, next)).pipe(switchMap((obs) => obs))
+  }
+
+  private async resolve(
+    cacheKey: string,
+    req: Request,
+    res: Response,
+    next: CallHandler
+  ): Promise<Observable<any>> {
+    const existing = await this.cacheService.get<IdempotencyEntry>(cacheKey)
 
     if (existing) {
       if (existing.status === 'IN_FLIGHT') {
@@ -47,48 +70,45 @@ export class IdempotencyInterceptor implements NestInterceptor {
       }
 
       if (existing.status === 'COMPLETED' && existing.response !== undefined) {
-        this.logger.log(`Idempotency cache HIT for key: ${key}`)
+        this.logger.log(`Idempotency cache HIT for key: ${cacheKey}`)
         res.setHeader('x-cache-idempotent', 'HIT')
-        if (existing.statusCode) {
-          res.status(existing.statusCode)
-        }
+        if (existing.statusCode) res.status(existing.statusCode)
         return of(existing.response)
       }
     }
 
-    // Mark as in-flight
-    IdempotencyInterceptor.cache.set(key, {
-      status: 'IN_FLIGHT',
-      timestamp: now,
-    })
+    // Mark as IN_FLIGHT before handing off to the handler
+    await this.cacheService.set<IdempotencyEntry>(
+      cacheKey,
+      { status: 'IN_FLIGHT' },
+      IDEMPOTENCY_TTL_SEC
+    )
     res.setHeader('x-cache-idempotent', 'MISS')
 
     return next.handle().pipe(
       tap({
         next: (data) => {
-          IdempotencyInterceptor.cache.set(key, {
-            status: 'COMPLETED',
-            response: data,
-            statusCode: res.statusCode,
-            timestamp: Date.now(),
-          })
-          this.cleanupStale(now)
+          // Fire-and-forget: mark COMPLETED. Await not needed — TTL covers cleanup.
+          this.cacheService
+            .set<IdempotencyEntry>(
+              cacheKey,
+              { status: 'COMPLETED', response: data, statusCode: res.statusCode },
+              IDEMPOTENCY_TTL_SEC
+            )
+            .catch((err: Error) =>
+              this.logger.error(`Failed to persist idempotency COMPLETED state: ${err.message}`)
+            )
         },
         error: () => {
-          // On error, allow retrying with the same key
-          IdempotencyInterceptor.cache.delete(key)
+          // On handler error: remove the IN_FLIGHT key so the client can retry.
+          this.cacheService
+            .invalidate(cacheKey)
+            .catch((err: Error) =>
+              this.logger.error(`Failed to clear IN_FLIGHT idempotency key: ${err.message}`)
+            )
         },
       })
     )
   }
-
-  private cleanupStale(now: number) {
-    if (IdempotencyInterceptor.cache.size > 5000) {
-      IdempotencyInterceptor.cache.forEach((entry, key) => {
-        if (now - entry.timestamp > IDEMPOTENCY_TTL_MS) {
-          IdempotencyInterceptor.cache.delete(key)
-        }
-      })
-    }
-  }
 }
+

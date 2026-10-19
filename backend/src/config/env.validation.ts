@@ -31,7 +31,11 @@ export const envSchema = z.object({
       (url) => /^mongodb(\+srv)?:\/\//.test(url) || /^postgres(ql)?:\/\//.test(url),
       'DATABASE_URL must be a valid MongoDB connection string (mongodb:// or mongodb+srv://)'
     ),
-  REDIS_URL: z.string().url().optional(),
+  // Upstash Redis (serverless cache + idempotency store).
+  // When absent the app uses a local in-memory fallback — fine for dev,
+  // but REQUIRED for correct behaviour on Vercel (stateless cold starts).
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 
   // ── Auth (§4.1) ──
   JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
