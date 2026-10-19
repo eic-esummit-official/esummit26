@@ -69,7 +69,7 @@ export function Header({ totalCount, onRefresh, isRefreshing, category = 'startu
 
           {/* Visit Main Site */}
           <a
-            href="http://localhost:3000"
+            href={process.env.NEXT_PUBLIC_SITE_URL || 'https://esummit.pec.ac.in'}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:inline-flex min-h-[38px] h-9 sm:h-10 box-border items-center justify-center gap-1.5 px-3.5 sm:px-4 rounded-full font-mono-data text-[11px] font-bold uppercase tracking-wider leading-none cursor-pointer border border-slate-200 dark:border-white/10 transition-all bg-white dark:bg-[#12241F] text-slate-800 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-mint shadow-xs"
