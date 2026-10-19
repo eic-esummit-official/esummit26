@@ -8,7 +8,8 @@ import SmoothScrollProvider from '@/components/Providers/SmoothScrollProvider'
 import ChevronRouteTransition from '@/components/Common/ChevronRouteTransition'
 import SessionProviderWrapper from '@/components/Providers/SessionProviderWrapper'
 import GlobalScrollProgress from '@/components/Common/GlobalScrollProgress'
-import Concierge from '@/components/Concierge'
+import Script from 'next/script'
+// import Concierge from '@/components/Concierge'
 import OnboardingGate from '@/components/Onboarding/OnboardingGate'
 import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
@@ -277,9 +278,22 @@ export default function RootLayout({
       <head>
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.clarity.ms" />
+        <link rel="preconnect" href="https://www.clarity.ms" />
+        <Script
+          id="ms-clarity"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "z09m0o77dq");`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('esummit-theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(t==='light'){document.documentElement.classList.add('light');document.documentElement.classList.remove('dark');}else{document.documentElement.classList.add('dark');document.documentElement.classList.remove('light');}}catch(e){}})()`,
+            __html: `(function(){try{document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('dark');document.documentElement.classList.remove('light');}catch(e){}})()`,
           }}
         />
         <script
