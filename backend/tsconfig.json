@@ -23,6 +23,6 @@
       "src/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "prisma/**/*"],
+  "include": ["src/**/*", "prisma/**/*", "api/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }

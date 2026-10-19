@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Vercel Serverless Entry Point
  *
  * Bootstraps the NestJS app once and caches it across warm invocations.
@@ -96,7 +96,7 @@ async function bootstrap(): Promise<any> {
         return callback(null, true)
       }
 
-      return callback(new Error(Origin  not allowed))
+      return callback(new Error(`Origin ${origin} not allowed`))
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
