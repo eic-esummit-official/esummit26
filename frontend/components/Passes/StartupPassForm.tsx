@@ -179,24 +179,22 @@ export default function StartupPassForm({
       saveStoredProfile(profData)
       saveUserProfileToDb(profData).catch(() => {})
 
+      const founderLinkedIn = form.linkedin.trim().startsWith('http')
+        ? form.linkedin.trim()
+        : `https://linkedin.com/in/${form.linkedin.trim().replace(/^@/, '')}`
+
       const payload = {
-        fullName: form.fullName.trim(),
         founderName: form.fullName.trim(),
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim(),
-        linkedin: form.linkedin.trim(),
-        founderLinkedIn: form.linkedin.trim().startsWith('http')
-          ? form.linkedin.trim()
-          : `https://linkedin.com/in/${form.linkedin.trim().replace(/^@/, '')}`,
-        organization: form.organization.trim(),
-        startupName: form.organization.trim() || `${form.fullName.trim()}'s Venture`,
+        founderLinkedIn,
+        organization: form.organization.trim() || `${form.fullName.trim()}'s Venture`,
         motive: form.motive.trim(),
         role: form.role.trim(),
         passTier: form.passTier,
         passTierName: selectedPkg.name,
         passPrice: `${selectedPkg.price} + GST`,
         mouComfortable: 'Yes, I am comfortable with the fee for my selected option and can proceed after reviewing the MoU.',
-        status: 'PENDING_REVIEW',
       }
 
       const res = await fetch('/api/funding-conclave/apply', {
@@ -228,7 +226,11 @@ export default function StartupPassForm({
         setSubmitState('success')
         toast.success('Application registered successfully!')
       } else {
-        throw new Error(data.error || 'Failed to submit application')
+        const errorDetail =
+          data.error ||
+          (Array.isArray(data.message) ? data.message.join(', ') : data.message) ||
+          'Failed to submit application'
+        throw new Error(errorDetail)
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Submission failed. Please try again.'

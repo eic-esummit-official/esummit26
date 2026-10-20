@@ -29,14 +29,18 @@ export class FundingConclaveService {
     // Upsert: delete existing record for this email then insert fresh.
     await this.prisma.fundingConclaveApplication.deleteMany({ where: { email } })
 
+    const founderName = (dto.founderName || dto.fullName || '').trim()
+    const founderLinkedIn = (dto.founderLinkedIn || dto.linkedin || '').trim()
+    const organization = (dto.organization || dto.startupName || '').trim()
+
     const application = await this.prisma.fundingConclaveApplication.create({
       data: {
         applicationId,
         email,
-        founderName: dto.founderName.trim(),
+        founderName,
         phone: dto.phone.trim(),
-        founderLinkedIn: dto.founderLinkedIn.trim(),
-        organization: dto.organization.trim(),
+        founderLinkedIn,
+        organization,
         motive: dto.motive.trim(),
         role: dto.role.trim(),
         passTier: dto.passTier,
@@ -57,17 +61,17 @@ export class FundingConclaveService {
     // Mirror as a FOUNDER_PITCH registration so it appears in the admin delegate list.
     try {
       await this.registrations.createRegistration({
-        name: dto.founderName.trim(),
+        name: founderName,
         email,
         phone: dto.phone.trim(),
-        college: dto.organization.trim(),
+        college: organization,
         passType: PassType.FOUNDER_PITCH,
         tracks: [
-          `Startup: ${dto.organization.trim()}`,
+          `Startup: ${organization}`,
           `Package: ${dto.passTierName} (${dto.passTier.toUpperCase()})`,
           `Role: ${dto.role.trim()}`,
           `Motive: ${dto.motive.trim()}`,
-          `LinkedIn: ${dto.founderLinkedIn.trim()}`,
+          `LinkedIn: ${founderLinkedIn}`,
         ].filter(Boolean),
       })
     } catch (err: any) {

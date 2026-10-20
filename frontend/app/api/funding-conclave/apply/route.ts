@@ -30,9 +30,16 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
+    const data = await upstream.json().catch(() => null)
     if (upstream.ok) {
-      const data = await upstream.json()
       return NextResponse.json(data, { status: upstream.status })
+    }
+    // If backend returned a 4xx error (validation, conflict, etc.), forward it directly
+    if (upstream.status < 500) {
+      return NextResponse.json(
+        data || { success: false, error: 'Request validation failed' },
+        { status: upstream.status },
+      )
     }
   } catch {
     // Backend offline or route unhandled — gracefully fallback to Response Manager
@@ -68,9 +75,15 @@ export async function GET(req: NextRequest) {
     const upstream = await fetch(
       `${BACKEND_URL}/funding-conclave/applications?email=${cleanEmail}`,
     )
+    const data = await upstream.json().catch(() => null)
     if (upstream.ok) {
-      const data = await upstream.json()
       return NextResponse.json(data, { status: upstream.status })
+    }
+    if (upstream.status < 500) {
+      return NextResponse.json(
+        data || { success: false, applications: [] },
+        { status: upstream.status },
+      )
     }
   } catch {
     // Backend offline or route unhandled — gracefully fallback to Response Manager
