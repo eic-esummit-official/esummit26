@@ -299,7 +299,13 @@ export default function ProfileClient() {
     try {
       const email = user?.email || profile.email
       const records = await getUserRegistrations(user?.uid, email)
-      setMyRegistrations(records)
+      const studentOnly = records.filter(
+        (r) =>
+          !['FOUNDER_PITCH', 'FOUNDER PASS', 'STARTUP'].some((s) =>
+            (r.category || '').toUpperCase().includes(s)
+          )
+      )
+      setMyRegistrations(studentOnly)
     } catch (err) {
       console.error('Failed to fetch user registrations', err)
       toast.error('Failed to load your passes.', TOAST_STYLE)

@@ -11,12 +11,20 @@ export async function GET(req: NextRequest) {
 
     const db = await getDatabase()
 
-    // 1. Fetch startup pass applications from funding_conclave_applications
-    const fundingApps = await db
-      .collection('funding_conclave_applications')
+    // 1. Fetch startup pass applications from FundingConclaveApplication (with fallback to funding_conclave_applications)
+    let fundingApps = await db
+      .collection('FundingConclaveApplication')
       .find({})
       .sort({ createdAt: -1 })
       .toArray()
+
+    if (!fundingApps.length) {
+      fundingApps = await db
+        .collection('funding_conclave_applications')
+        .find({})
+        .sort({ createdAt: -1 })
+        .toArray()
+    }
 
     const mappedStartupApps: Registration[] = fundingApps.map((doc: any) => ({
       _id: String(doc._id),
@@ -29,10 +37,10 @@ export async function GET(req: NextRequest) {
       linkedin: doc.founderLinkedIn || doc.linkedin || '',
       motive: doc.motive || '',
 
-      organization: doc.startupName || doc.organization || '',
+      organization: doc.organization || doc.startupName || '',
       role: doc.role || 'Founder',
 
-      passTier: doc.passTier || 'gold',
+      passTier: (doc.passTier || 'gold').toLowerCase(),
       passTierName: doc.passTierName || 'GOLD PASS',
       passPrice: doc.passPrice || '',
       paymentMethod: String(doc.paymentMethod || '').replace(/_?MOU_?/gi, '_').replace(/^_+|_+$/g, '') || 'OFFLINE_DIRECT_TRANSFER',
@@ -43,10 +51,15 @@ export async function GET(req: NextRequest) {
       updatedAt: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : new Date().toISOString(),
     }))
 
-    // 2. Fetch student registrations with joined User
+    // 2. Fetch student registrations with joined User, strictly excluding mirrored startup passes
     const studentRegs = await db
       .collection('Registration')
       .aggregate([
+        {
+          $match: {
+            passType: { $nin: ['FOUNDER_PITCH', 'FOUNDER', 'STARTUP_SILVER', 'STARTUP_GOLD', 'STARTUP_DIAMOND'] },
+          },
+        },
         {
           $lookup: {
             from: 'User',
@@ -216,7 +229,7 @@ export async function POST(req: NextRequest) {
     }
 
     const db = await getDatabase()
-    await db.collection('funding_conclave_applications').insertOne(application as any)
+    await db.collection('FundingConclaveApplication').insertOne(application as any)
     return NextResponse.json({ success: true, application }, { status: 201 })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to create application'
