@@ -11,18 +11,27 @@ export async function GET(req: NextRequest) {
     let allRecords: any[] = []
 
     if (category !== 'student') {
-      const startupApps = await db
-        .collection('funding_conclave_applications')
+      let startupApps = await db
+        .collection('FundingConclaveApplication')
         .find({})
         .sort({ createdAt: -1 })
         .toArray()
+
+      if (!startupApps.length) {
+        startupApps = await db
+          .collection('funding_conclave_applications')
+          .find({})
+          .sort({ createdAt: -1 })
+          .toArray()
+      }
+
       allRecords.push(
         ...startupApps.map((a: any) => ({
           type: 'Startup Pass',
           id: a.applicationId,
           tier: a.passTierName || a.passTier,
           name: a.founderName,
-          org: a.startupName || a.organization,
+          org: a.organization || a.startupName,
           email: a.email,
           phone: a.phone,
           stage: a.stage,
@@ -37,6 +46,11 @@ export async function GET(req: NextRequest) {
       const studentRegs = await db
         .collection('Registration')
         .aggregate([
+          {
+            $match: {
+              passType: { $nin: ['FOUNDER_PITCH', 'FOUNDER', 'STARTUP_SILVER', 'STARTUP_GOLD', 'STARTUP_DIAMOND'] },
+            },
+          },
           {
             $lookup: {
               from: 'User',

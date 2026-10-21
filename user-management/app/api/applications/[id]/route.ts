@@ -32,7 +32,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ success: false, error: 'A valid update payload is required' }, { status: 400 })
     }
     const db = await getDatabase()
-    const collection = db.collection('funding_conclave_applications')
+    let collection = db.collection('FundingConclaveApplication')
 
     const updateFields: Record<string, unknown> = {
       updatedAt: new Date().toISOString(),
@@ -55,6 +55,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
     const filter = buildIdFilter(id)
     let result = await collection.updateOne(filter, { $set: updateFields })
+
+    if (result.matchedCount === 0) {
+      // Try legacy collection name
+      result = await db.collection('funding_conclave_applications').updateOne(filter, { $set: updateFields })
+    }
 
     if (result.matchedCount === 0) {
       // Check Registration collection for student pass
@@ -93,10 +98,12 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
     const { id } = await params
     const db = await getDatabase()
-    const collection = db.collection('funding_conclave_applications')
-
     const filter = buildIdFilter(id)
-    const result = await collection.deleteOne(filter)
+    let result = await db.collection('FundingConclaveApplication').deleteOne(filter)
+
+    if (result.deletedCount === 0) {
+      result = await db.collection('funding_conclave_applications').deleteOne(filter)
+    }
 
     if (result.deletedCount === 0) {
       const regCollection = db.collection('Registration')

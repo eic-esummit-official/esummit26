@@ -92,4 +92,24 @@ export class CreateFundingConclaveApplicationDto {
   @IsOptional()
   @IsString()
   userId?: string
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  fullName?: string
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  linkedin?: string
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(150)
+  startupName?: string
+
+  @IsOptional()
+  @IsString()
+  status?: string
 }
+
