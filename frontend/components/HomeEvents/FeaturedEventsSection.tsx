@@ -35,13 +35,17 @@ export default function FeaturedEventsSection() {
         title: e.title,
         category: e.category,
         eyebrow: e.eyebrow,
-        image: matched?.imageUrl || e.image,
+        image: e.image?.startsWith('/') ? e.image : (matched?.imageUrl || e.image),
         purpose: e.purpose,
         delivery: e.delivery,
         expectedParticipation: e.expectedParticipation,
         tags: e.tags,
         partner: e.partner ?? undefined,
         registrationUrl: e.registrationUrl ?? null,
+        timeline: e.timeline,
+        eligibility: e.eligibility,
+        rounds: e.rounds,
+        guidelines: e.guidelines,
       }
     })
   }, [data?.events, data?.portfolioMedia])
