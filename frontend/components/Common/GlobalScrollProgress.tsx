@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const SECTIONS = [
   { id: 'esummit-hero', name: 'HOME' },
+  { id: 'featured-events', name: 'EVENTS' },
   { id: 'flip-flop-transition', name: 'WELCOME' },
   { id: 'alumni', name: 'ALUMNI' },
   { id: 'register', name: 'REGISTER' },

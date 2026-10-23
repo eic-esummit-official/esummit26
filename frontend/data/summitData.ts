@@ -27,6 +27,10 @@ export interface EventItem {
   tags: string[]
   partner?: string
   registrationUrl?: string | null
+  timeline?: string
+  eligibility?: string
+  rounds?: { title: string; date: string; description: string }[]
+  guidelines?: string[]
 }
 
 export interface AlumniItem {
@@ -308,7 +312,7 @@ export const MASTER_EVENTS: EventItem[] = [
     title: 'Funding Conclave',
     category: 'Venture Capital',
     eyebrow: 'IDEAS. INVESTORS. IMPACT.',
-    image: 'https://res.cloudinary.com/dxtvq5s2x/image/upload/v1787412311/esummit/gallery/pec_funding_conclave.png',
+    image: '/events/founding_conclave.jpeg',
     purpose: 'A high-stakes live pitching stage where high-potential startup founders present their ventures before active angel investors, venture capitalists, and an audience of over 400 attendees to secure funding and strategic backing.',
     delivery: 'Live Pitching on stage, real-time evaluation from an esteemed investor panel, and dedicated post-pitch investor connect for term sheets, syndicates, and strategic mentorship.',
     expectedParticipation: '400+ Attendees & 20+ Top VCs',
@@ -322,7 +326,7 @@ export const MASTER_EVENTS: EventItem[] = [
     title: 'Networking Lunch',
     category: 'Networking',
     eyebrow: 'HIGH-INTENT CONVERSATIONS',
-    image: 'https://res.cloudinary.com/dxtvq5s2x/image/upload/v1787412306/esummit/gallery/pec_auditorium.png',
+    image: '/events/networking_lunch.jpeg',
     purpose: 'An exclusive, closed-door networking luncheon designed to connect startup founders, institutional investors, keynote speakers, and industry alumni in an informal yet focused setting.',
     delivery: 'Curated introductions aligned by sector & investment stage, casual open dialogue, and dedicated windows for warm contacts and one-on-one follow-up meetings.',
     expectedParticipation: 'Exclusive · Invite-Only',
@@ -336,7 +340,7 @@ export const MASTER_EVENTS: EventItem[] = [
     title: 'Expert Sessions',
     category: 'Speakers & Panels',
     eyebrow: 'INSIGHT THAT MOVES INTO ACTION',
-    image: 'https://res.cloudinary.com/dxtvq5s2x/image/upload/v1787412321/esummit/gallery/pec_keynote_speaker.png',
+    image: '/events/expert_sessions.jpeg',
     purpose: 'Flagship keynote sessions, masterclasses, and thought-provoking group debates led by visionary entrepreneurs, venture capitalists, and industry disruptors.',
     delivery: 'Unfiltered founder playbooks covering early pivots & fundraising journeys, and diverse panel debates contrasting founder agility with investor expectations.',
     expectedParticipation: '1,000+ Attendees',
@@ -350,7 +354,7 @@ export const MASTER_EVENTS: EventItem[] = [
     title: 'Startup Expo',
     category: 'Deep Tech & Expo',
     eyebrow: 'BE SEEN BY THE RIGHT PEOPLE',
-    image: 'https://res.cloudinary.com/dxtvq5s2x/image/upload/v1787412331/esummit/gallery/pec_senate_roundtable.png',
+    image: '/events/startup_expo.jpeg',
     purpose: 'The central discovery floor of E-Summit 2026, where emerging startups, student-led ventures, and research-backed innovators exhibit working prototypes, demonstrate live products, and engage directly with the ecosystem.',
     delivery: 'Dedicated exhibition stalls (incl. 10x10 ft prime booths) for live demos, access to 4,000+ attendees for beta users & talent, and curated investor/mentor walkthroughs at founder stalls.',
     expectedParticipation: '4,000+ Attendees & 40+ Exhibits',
@@ -371,6 +375,62 @@ export const MASTER_EVENTS: EventItem[] = [
     tags: ['Startups & Companies', 'Paid Roles', 'Direct Hiring', 'Campus Ambassadors'],
     partner: 'PEC Training & Placement Cell',
     registrationUrl: null,
+  },
+  {
+    id: 'ev-8',
+    number: '08',
+    title: 'Board Room',
+    category: 'Strategy & Leadership',
+    eyebrow: 'EXECUTIVE STRATEGY CHALLENGE',
+    image: '/events/board_room.png',
+    purpose: 'Boardroom Battle is a premier business strategy competition where participants step into executive roles (CEO, CFO, CTO, CMO) to solve complex business challenges, balance finance, technology, marketing & operations, and defend practical solutions before a judging panel.',
+    delivery: 'Round 1: Online Assessment (24 Oct – 10 Nov) on Unstop evaluating technical knowledge, analytical thinking, and job-relevant skills. Round 2: Offline Final (14–15 Nov) at PEC Campus with case presentation, role defense, and an unexpected Twist Round testing adaptability under market shocks.',
+    expectedParticipation: 'Teams of 3–4 Members · Intercollege Allowed',
+    tags: ['Business Strategy', 'Executive Roles', 'Twist Round', 'Offline at PEC'],
+    partner: 'E-Cell PEC & Unstop',
+    registrationUrl: 'https://unstop.com/competitions/board-room-punjab-engineering-college-pec-chandigarh-1774008',
+    timeline: '24 Oct 2026 – 15 Nov 2026',
+    eligibility: 'Undergraduate & Postgraduate Students (Engineering, Management, Arts, Law, Sciences & Medical)',
+    rounds: [
+      {
+        title: 'Round 1: Online Assessment',
+        date: '24 Oct 26, 03:44 PM IST – 10 Nov 26, 03:44 PM IST',
+        description: 'Structured online assessment consisting of multiple-choice and problem-solving questions evaluating technical knowledge, analytical thinking, and job-relevant skills on Unstop.',
+      },
+      {
+        title: 'Round 2: Offline Boardroom Final & Twist Round',
+        date: '14 Nov 26, 04:19 PM IST – 15 Nov 26, 04:20 PM IST',
+        description: 'Final round held offline at PEC Campus, Chandigarh. Teams assign C-suite roles (CEO, CFO, CTO, CMO), prepare strategic solutions for a revealed business case, defend before judges, and adapt to sudden market shocks in the Twist Round.',
+      },
+    ],
+  },
+  {
+    id: 'ev-9',
+    number: '09',
+    title: 'Bargain Battles',
+    category: 'Auction & Pitch',
+    eyebrow: 'AUCTION & SALES PITCH',
+    image: '/events/Bargain_Battles.png',
+    purpose: 'An auction and sales-pitch battle at PEC E-Summit 2026 where teams bid for imaginative fictional products using virtual currency and persuade an executive judging panel to buy them through creative positioning, marketing angles, and live negotiation.',
+    delivery: 'Round 1: Online Quiz (24 Oct – 10 Nov) on Unstop testing analytical skills. Round 2: Offline Live Auction & Pitch (14–15 Nov) at PEC Campus. Qualified teams bid virtual money for fictional products, get 25 minutes of pitch prep, and negotiate live sales with judges.',
+    expectedParticipation: 'Teams of 3–4 Members · Intercollege Allowed',
+    tags: ['Live Auction', 'Sales Pitch', 'Negotiation', 'Virtual Currency'],
+    partner: 'E-Cell PEC & Unstop',
+    registrationUrl: 'https://unstop.com/competitions/bargain-battles-punjab-engineering-college-pec-chandigarh-1773978',
+    timeline: '24 Oct 2026 – 15 Nov 2026',
+    eligibility: 'Undergraduate, Postgraduate, Engineering, Management, Arts, Commerce, Sciences, Law & Medical',
+    rounds: [
+      {
+        title: 'Round 1: Online Quiz Assessment',
+        date: '24 Oct 26, 03:21 PM IST – 10 Nov 26, 03:21 PM IST',
+        description: 'Structured online assessment consisting of multiple-choice and problem-solving questions on Unstop evaluating technical knowledge and analytical thinking.',
+      },
+      {
+        title: 'Round 2: Offline Auction & Pitching Round',
+        date: '14 Nov 26, 04:25 PM IST – 15 Nov 26, 04:26 PM IST',
+        description: 'Live offline round at PEC Campus, Chandigarh. Shortlisted teams bid virtual currency for fictional products in an intense auction, prepare 25-minute sales pitches, and defend their pricing and buyer value in live negotiations before judges.',
+      },
+    ],
   },
 ]
 

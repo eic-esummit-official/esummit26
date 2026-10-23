@@ -52,13 +52,17 @@ export default function EventPortfolioShowcase() {
         title: e.title,
         category: e.category,
         eyebrow: e.eyebrow,
-        image: matched?.imageUrl || e.image,
+        image: e.image?.startsWith('/') ? e.image : (matched?.imageUrl || e.image),
         purpose: e.purpose,
         delivery: e.delivery,
         expectedParticipation: e.expectedParticipation,
         tags: e.tags,
         partner: e.partner ?? undefined,
         registrationUrl: e.registrationUrl ?? null,
+        timeline: e.timeline,
+        eligibility: e.eligibility,
+        rounds: e.rounds,
+        guidelines: e.guidelines,
       }
     })
   }, [data.events, data.portfolioMedia])
@@ -81,12 +85,14 @@ export default function EventPortfolioShowcase() {
 
     if (activeTab === 'competition') {
       return allEvents.filter((e) =>
-        ['Hackathon', 'Strategy & Finance', 'Pitch Competition', 'Marketplace', 'Quiz Arena'].includes(e.category) ||
+        ['Hackathon', 'Strategy & Finance', 'Strategy & Leadership', 'Auction & Pitch', 'Pitch Competition', 'Marketplace', 'Quiz Arena'].includes(e.category) ||
         e.title.includes('Hackathon') ||
         e.title.includes('Auction') ||
         e.title.includes('Pitch') ||
         e.title.includes('Quiz') ||
-        e.title.includes('Bazaar')
+        e.title.includes('Bazaar') ||
+        e.title.includes('Board') ||
+        e.title.includes('Bargain')
       )
     }
 

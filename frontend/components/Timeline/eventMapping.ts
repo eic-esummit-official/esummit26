@@ -72,6 +72,12 @@ export function getLinkedEvent(
   if (title.includes('funding') || title.includes('pitching') || title.includes('conclave')) {
     return eventsList.find((e) => e.id === 'ev-3') ?? null
   }
+  if (title.includes('board room') || title.includes('boardroom')) {
+    return eventsList.find((e) => e.id === 'ev-8') ?? null
+  }
+  if (title.includes('bargain') || (title.includes('auction') && !title.includes('ipl'))) {
+    return eventsList.find((e) => e.id === 'ev-9') ?? null
+  }
   if (title.includes('ipl') || title.includes('auction')) {
     return eventsList.find((e) => e.id === 'ev-4') ?? null
   }
