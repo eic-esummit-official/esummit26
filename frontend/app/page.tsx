@@ -9,6 +9,7 @@ import LimeEdgeMasks from '@/components/Common/LimeEdgeMasks'
 import ScrollExpandLoader from '@/components/Common/ScrollExpandLoader'
 
 // ── Below-the-fold sections loaded asynchronously to protect initial critical bundle ──
+const FeaturedEvents = dynamic(() => import('@/components/HomeEvents/FeaturedEventsSection'), { ssr: false })
 const FlipFlopTransition = dynamic(() => import('@/components/Common/FlipFlopTransition'), { ssr: false })
 const Alumni = dynamic(() => import('@/components/Alumni'), { ssr: false })
 const PassesSection = dynamic(() => import('@/components/Passes'), { ssr: false })
@@ -42,7 +43,10 @@ export default function Home() {
       {/* ── 1. HERO — Grand Entrance & Frame Scrubbing ── */}
       <NewHero />
 
-      {/* ── 2. FLIPFLOP PHOTO MARQUEE — Immediately after Hero ── */}
+      {/* ── 2. FEATURED EVENTS — 3 Flagship Competitions & Initiatives ── */}
+      <FeaturedEvents />
+
+      {/* ── 3. FLIPFLOP PHOTO MARQUEE — Immediately after Hero ── */}
       <FlipFlopTransition />
 
       {/* ── 3. ALUMNI — Wall of fame ── */}
