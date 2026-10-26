@@ -282,7 +282,7 @@ export const MASTER_EVENTS: EventItem[] = [
     eyebrow: 'IDEA TO IMPACT',
     image: '/EIC_VentureX.jpeg',
     purpose: 'High-energy innovation sprint where ideas turn into working solutions and tech prototypes fast.',
-    delivery: '24-Hour continuous sprint, mentor checkpoint reviews, and live product demos before judges.',
+    delivery: '12-Hour continuous sprint, mentor checkpoint reviews, and live product demos before judges.',
     expectedParticipation: '500+ Hackers across 120 Teams',
     tags: ['AI & ML', 'Full-Stack', 'Open Source', '₹5.0L Prize Pool'],
     partner: 'Google Cloud & GitHub',
