@@ -4,7 +4,7 @@
 import React, { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Layers, Layout, Users, ShieldCheck, ExternalLink } from 'lucide-react'
+import { X, Layers, Layout, Users, ShieldCheck, ExternalLink, Calendar, CheckCircle2 } from 'lucide-react'
 import { PortfolioEvent } from './data'
 
 interface DetailModalProps {
@@ -189,6 +189,51 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
               ))}
             </div>
 
+            {/* Eligibility Note if available */}
+            {event.eligibility && (
+              <div className="p-3.5 sm:p-4 rounded-xl bg-panel-alt border border-border-subtle flex items-start gap-3">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-mint/10 text-mint shrink-0 mt-0.5">
+                  <CheckCircle2 size={15} strokeWidth={2} />
+                </div>
+                <div className="space-y-1 min-w-0 flex-1">
+                  <h4 className="font-mono-data text-[10px] font-extrabold uppercase tracking-widest text-mint">
+                    ELIGIBILITY
+                  </h4>
+                  <p className="text-xs text-secondary leading-relaxed font-normal">{event.eligibility}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Stages & Timelines if available */}
+            {event.rounds && event.rounds.length > 0 && (
+              <div className="space-y-2.5 pt-1">
+                <div className="flex items-center gap-2">
+                  <Calendar size={14} className="text-mint" />
+                  <h4 className="font-mono-data text-[10.5px] font-extrabold uppercase tracking-widest text-primary">
+                    STAGES &amp; TIMELINES
+                  </h4>
+                </div>
+                <div className="space-y-2.5">
+                  {event.rounds.map((round, rIdx) => (
+                    <div
+                      key={rIdx}
+                      className="p-3.5 rounded-xl bg-panel-alt border border-border-subtle relative overflow-hidden"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
+                        <span className="font-display text-xs sm:text-sm font-bold uppercase tracking-tight text-primary">
+                          {round.title}
+                        </span>
+                        <span className="font-mono-data text-[10px] font-bold text-mint bg-mint/10 border border-mint/20 px-2 py-0.5 rounded-full w-max">
+                          {round.date}
+                        </span>
+                      </div>
+                      <p className="text-xs text-secondary leading-relaxed">{round.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Partner Banner */}
             {event.partner && (
               <div className="p-3.5 sm:p-4 rounded-xl bg-mint/10 border border-mint/20 flex items-center gap-3">
@@ -220,8 +265,8 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
                   {event.registrationUrl.includes('google')
                     ? 'Apply via Google Form'
                     : isComp
-                    ? 'Register on Unstop'
-                    : 'Apply Now'}
+                      ? 'Register on Unstop'
+                      : 'Apply Now'}
                 </span>
                 <ExternalLink size={14} className="shrink-0" />
               </a>

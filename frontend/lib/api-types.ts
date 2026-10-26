@@ -143,6 +143,10 @@ export interface CmsEvent {
   tags: string[]
   partner: string | null
   registrationUrl: string | null
+  timeline?: string
+  eligibility?: string
+  rounds?: { title: string; date: string; description: string }[]
+  guidelines?: string[]
   // Schedule fields
   type: string
   track: string | null

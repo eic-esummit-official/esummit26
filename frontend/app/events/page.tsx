@@ -134,6 +134,38 @@ const EVENTS_SCHEMA = {
             },
           },
         },
+        {
+          '@type': 'ListItem',
+          position: 5,
+          item: {
+            '@type': 'Event',
+            name: 'Board Room (Boardroom Battle)',
+            description:
+              'Business strategy competition where teams step into C-suite executive roles to solve corporate challenges and defend strategies before a judging panel.',
+            startDate: '2026-10-24T15:44:00+05:30',
+            endDate: '2026-11-15T16:20:00+05:30',
+            location: {
+              '@type': 'Place',
+              name: 'Punjab Engineering College, Sector 12, Chandigarh',
+            },
+          },
+        },
+        {
+          '@type': 'ListItem',
+          position: 6,
+          item: {
+            '@type': 'Event',
+            name: 'Bargain Battles',
+            description:
+              'Auction and sales-pitch battle bidding virtual currency for fictional products and pitching to an executive buyer panel.',
+            startDate: '2026-10-24T15:21:00+05:30',
+            endDate: '2026-11-15T16:26:00+05:30',
+            location: {
+              '@type': 'Place',
+              name: 'Punjab Engineering College, Sector 12, Chandigarh',
+            },
+          },
+        },
       ],
     },
   ],
