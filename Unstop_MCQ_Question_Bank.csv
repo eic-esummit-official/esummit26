@@ -1,0 +1,21 @@
+Question,Type,Answer,Choice1,Choice2,Choice3,Choice4,Choice5,Choice6,Marks,Negative Marks,Answer Keywords,Answer Keywords marks,Image,Duration In Seconds,Tag
+Who is an entrepreneur?,Objective,A person who starts a new business and takes on its risks,A person who only invests in the stock market,A person who works for a fixed monthly salary,A person who starts a new business and takes on its risks,A government officer who regulates businesses,,,1,0,,,,,Entrepreneurship - Easy
+What does MVP stand for in startup terminology?,Objective,Minimum Viable Product,Most Valuable Player,Minimum Viable Product,Minimum Variable Pricing,Maximum Value Proposition,,,1,0,,,,,Entrepreneurship - Medium
+"In startup language, what is a 'pivot'?",Objective,A fundamental change in business model or strategy based on what the startup has learned,Shutting down the company,Opening a new office in another city,Hiring a new CEO,A fundamental change in business model or strategy based on what the startup has learned,,,1,0,,,,,Entrepreneurship - Medium
+"A startup spends Rs. 10 lakh per month and earns Rs. 4 lakh per month in revenue. If it has Rs. 54 lakh in cash, how long is its runway (at the current net burn)?",Objective,9 months,9 months,13.5 months,6 months,5.4 months,,,1,0,,,,,Entrepreneurship - Hard
+Which key uniquely identifies each record in a table and cannot contain NULL values?,Objective,Primary key,Composite attribute,Primary key,Foreign key,Candidate-only key,,,1,0,,,,,DBMS - Easy
+Which JOIN returns all rows from the left table and the matching rows from the right table?,Objective,LEFT JOIN,LEFT JOIN,INNER JOIN,RIGHT JOIN,CROSS JOIN,,,1,0,,,,,DBMS - Medium
+Which SQL clause is used to filter groups after a GROUP BY?,Objective,HAVING,LIMIT,HAVING,WHERE,ORDER BY,,,1,0,,,,,DBMS - Medium
+"A relation R(A, B, C, D) has the functional dependencies A -> B, B -> C and C -> D. What is the highest normal form R satisfies?",Objective,2NF,BCNF,2NF,1NF only,3NF,,,1,0,,,,,DBMS - Hard
+What is 20% of 250?,Objective,50,40,50,60,25,,,1,0,,,,,Aptitude - Easy
+"What is the next number in the series 2, 6, 12, 20, 30, ?",Objective,42,42,44,40,36,,,1,0,,,,,Aptitude - Easy
+A 120 m long train crosses a pole in 6 seconds. What is its speed in km/h?,Objective,72,90,60,80,72,,,1,0,,,,,Aptitude - Medium
+A sum of money doubles itself in 5 years at simple interest. In how many years will it become 4 times itself?,Objective,15 years,10 years,15 years,20 years,12.5 years,,,1,0,,,,,Aptitude - Hard
+"A can finish a work in 12 days and B in 18 days. They work together for 4 days, then A leaves. In how many more days will B finish the remaining work alone?",Objective,8 days,10 days,9 days,8 days,6 days,,,1,0,,,,,Aptitude - Hard
+Which of the following is NOT a pillar of Object-Oriented Programming?,Objective,Compilation,Polymorphism,Encapsulation,Inheritance,Compilation,,,1,0,,,,,OOPS - Easy
+Method overloading is an example of:,Objective,Compile-time polymorphism,Data hiding,Runtime polymorphism,Compile-time polymorphism,Inheritance,,,1,0,,,,,OOPS - Medium
+"In C++, what is required for a call through a base-class pointer to invoke the derived-class version of a method at runtime?",Objective,The base-class method must be declared virtual,The base-class method must be declared virtual,The method must be declared static,The derived class must declare the method private,The method must be declared inline,,,1,0,,,,,OOPS - Hard
+"A subclass overrides a parent method so that it throws an 'unsupported operation' error, making the subclass unusable wherever the parent is expected. Which design principle does this violate?",Objective,Liskov Substitution Principle,Single Responsibility Principle,Interface Segregation Principle,Open/Closed Principle,Liskov Substitution Principle,,,1,0,,,,,OOPS - Hard
+"Which data structure follows the LIFO (Last In, First Out) principle?",Objective,Stack,Stack,Array,Linked list,Queue,,,1,0,,,,,DSA - Easy
+What is the time complexity of binary search on a sorted array of n elements?,Objective,O(log n),O(log n),O(n log n),O(n),O(1),,,1,0,,,,,DSA - Medium
+What is the worst-case time complexity of Quick Sort on an already sorted array when the first element is always chosen as the pivot?,Objective,O(n^2),O(log n),O(n^2),O(n),O(n log n),,,1,0,,,,,DSA - Hard

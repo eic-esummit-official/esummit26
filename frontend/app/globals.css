@@ -1575,3 +1575,13 @@ nextjs-portal:hover {
   pointer-events: auto !important;
 }
 
+/* ── VentureX Lateral Entry Test animations ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px #ef4444; }
+  50%       { opacity: 0.5; box-shadow: 0 0 2px #ef4444; }
+}
+

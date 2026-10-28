@@ -390,3 +390,23 @@ model FundingConclaveApplication {
   @@index([passTier])
   @@index([createdAt])
 }
+
+// ─── VentureX Lateral Entry Test ─────────────────────────────────────────────
+
+/// One submission per team — leaderPhone is unique to block re-attempts.
+model VentureXTestSubmission {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamName       String
+  college        String
+  leaderPhone    String   @unique
+  /// JSON array: [{ name: string, email: string, isLeader: boolean }]
+  members        Json
+  /// JSON array: [{ questionId: string, selectedOption: string }]
+  answers        Json
+  score          Int
+  totalQuestions Int
+  violations     Int      @default(0)
+  submittedAt    DateTime @default(now())
+
+  @@index([submittedAt])
+}

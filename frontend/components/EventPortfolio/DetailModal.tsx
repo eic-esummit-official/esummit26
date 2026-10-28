@@ -253,7 +253,7 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
           </div>
 
           {/* Action Footer */}
-          <div className="p-3.5 sm:p-5 border-t border-border-subtle bg-panel flex items-center gap-2.5 shrink-0 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
+          <div className="p-3.5 sm:p-5 border-t border-border-subtle bg-panel flex flex-col sm:flex-row items-center gap-2.5 shrink-0 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
             {event.registrationUrl ? (
               <a
                 href={event.registrationUrl}
@@ -280,7 +280,24 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
                 <ExternalLink size={14} className="shrink-0" />
               </a>
             )}
+            {/* Lateral Entry Test — shown exclusively for EIC VentureX (ev-1) */}
+            {event.id === 'ev-1' && (
+              <a
+                href="/lateral-entry-test"
+                onClick={onClose}
+                className="w-full flex items-center justify-center gap-1.5 h-11 px-5 rounded-full font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all"
+                style={{
+                  background: 'rgba(249,115,22,0.12)',
+                  border: '1px solid rgba(249,115,22,0.4)',
+                  color: '#f97316',
+                  boxShadow: '0 0 20px rgba(249,115,22,0.15)',
+                }}
+              >
+                <span>🎯 Lateral Entry Test</span>
+              </a>
+            )}
           </div>
+
         </motion.div>
       </div>
     </AnimatePresence>

@@ -39,6 +39,14 @@ const nextConfig = {
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
+      {
+        // Lateral Entry Test — proctoring requires camera + microphone permissions.
+        // MUST come AFTER catch-all so it overrides the restrictive Permissions-Policy.
+        source: '/lateral-entry-test',
+        headers: [
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(self)' },
+        ],
+      },
     ]
   },
   async redirects() {

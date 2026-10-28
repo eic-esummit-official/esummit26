@@ -17,6 +17,7 @@ import { SubscribersModule } from './subscribers/subscribers.module'
 import { EmailModule } from './email/email.module'
 import { UsersModule } from './users/users.module'
 import { FundingConclaveModule } from './funding-conclave/funding-conclave.module'
+import { VentureXTestModule } from './venturex-test/venturex-test.module'
 import { HealthController } from './health/health.controller'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { RolesGuard } from './common/guards/roles.guard'
@@ -55,6 +56,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
     SubscribersModule,
     UsersModule,
     FundingConclaveModule,
+    VentureXTestModule,
   ],
 
   controllers: [HealthController],
